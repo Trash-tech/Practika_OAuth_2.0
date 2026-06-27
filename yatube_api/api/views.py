@@ -2,13 +2,11 @@ import json
 import secrets
 from urllib.parse import urlencode
 
-
 import requests
 from django.conf import settings
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
-from rest_framework import filters, mixins, permissions, viewsets
 from django.contrib.auth import get_user_model
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from rest_framework import filters, generics, mixins, permissions, status, viewsets
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
@@ -113,7 +111,7 @@ class AvatarUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def patch(self, request):
-        avatar = request.FILES.get('avatar')
+        avatar = request.FILES.get('avatar') or request.data.get('avatar')
 
         if not avatar:
             return Response(

@@ -24,6 +24,44 @@ async function deletePost(postId) {
     }
 }
 
+function createPostCard(post, currentUser) {
+    const card = document.createElement('div');
+    card.className = 'post-card';
+
+    const header = document.createElement('div');
+    header.className = 'post-header';
+
+    const author = document.createElement('span');
+    author.className = 'post-author';
+    author.textContent = post.author;
+
+    const date = document.createElement('span');
+    date.textContent = new Date(post.pub_date).toLocaleString();
+
+    header.appendChild(author);
+    header.appendChild(date);
+
+    const text = document.createElement('div');
+    text.className = 'post-text';
+    text.textContent = post.text;
+
+    card.appendChild(header);
+    card.appendChild(text);
+
+    const canDelete = currentUser && currentUser.username === post.author;
+
+    if (canDelete) {
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'delete-post-btn';
+        deleteButton.textContent = 'Удалить';
+        deleteButton.addEventListener('click', () => deletePost(post.id));
+
+        card.appendChild(deleteButton);
+    }
+
+    return card;
+}
+
 async function loadPosts() {
     const postsDiv = document.getElementById('posts');
     const currentUser = await getCurrentUser();
@@ -32,32 +70,17 @@ async function loadPosts() {
     const data = await response.json();
     const posts = data.results || data;
 
-    postsDiv.innerHTML = '';
+    postsDiv.textContent = '';
 
     if (!posts.length) {
-        postsDiv.innerHTML = '<p>Постов пока нет.</p>';
+        const emptyText = document.createElement('p');
+        emptyText.textContent = 'Постов пока нет.';
+        postsDiv.appendChild(emptyText);
         return;
     }
 
     posts.forEach(post => {
-        const card = document.createElement('div');
-        card.className = 'post-card';
-
-        const canDelete = currentUser && currentUser.username === post.author;
-
-        card.innerHTML = `
-            <div class="post-header">
-                <span class="post-author">${post.author}</span>
-                <span>${new Date(post.pub_date).toLocaleString()}</span>
-            </div>
-            <div class="post-text">${post.text}</div>
-            ${
-                canDelete
-                    ? `<button class="delete-post-btn" onclick="deletePost(${post.id})">Удалить</button>`
-                    : ''
-            }
-        `;
-
+        const card = createPostCard(post, currentUser);
         postsDiv.appendChild(card);
     });
 }
