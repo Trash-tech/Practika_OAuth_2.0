@@ -24,35 +24,92 @@ async function deletePost(postId) {
     }
 }
 
+function getFirstLetter(username) {
+    const value = String(username || '').trim();
+
+    if (!value) {
+        return '?';
+    }
+
+    return value[0].toUpperCase();
+}
+
+function prepareUrlForCss(url) {
+    return String(url || '').replace(/"/g, '\\"');
+}
+
+function renderAvatarBox(element, imageUrl, username) {
+    const letter = getFirstLetter(username);
+
+    element.replaceChildren();
+    element.textContent = letter;
+    element.style.backgroundImage = '';
+
+    if (!imageUrl) {
+        return;
+    }
+
+    const image = new Image();
+
+    image.addEventListener('load', () => {
+        element.textContent = '';
+        element.style.backgroundImage = `url("${prepareUrlForCss(imageUrl)}")`;
+    });
+
+    image.addEventListener('error', () => {
+        element.replaceChildren();
+        element.textContent = letter;
+        element.style.backgroundImage = '';
+    });
+
+    image.src = imageUrl;
+}
+
+function createAuthorAvatar(post) {
+    const avatar = document.createElement('div');
+    avatar.className = 'post-author-avatar';
+
+    renderAvatarBox(avatar, post.author_avatar_url, post.author);
+
+    return avatar;
+}
+
 function createPostCard(post, currentUser) {
-    const card = document.createElement('div');
+    const card = document.createElement('article');
     card.className = 'post-card';
 
     const header = document.createElement('div');
     header.className = 'post-header';
 
+    const authorBlock = document.createElement('div');
+    authorBlock.className = 'post-author-block';
+
+    const avatar = createAuthorAvatar(post);
+
     const author = document.createElement('span');
     author.className = 'post-author';
     author.textContent = post.author;
 
+    authorBlock.append(avatar, author);
+
     const date = document.createElement('span');
+    date.className = 'post-date';
     date.textContent = new Date(post.pub_date).toLocaleString();
 
-    header.appendChild(author);
-    header.appendChild(date);
+    header.append(authorBlock, date);
 
     const text = document.createElement('div');
     text.className = 'post-text';
     text.textContent = post.text;
 
-    card.appendChild(header);
-    card.appendChild(text);
+    card.append(header, text);
 
     const canDelete = currentUser && currentUser.username === post.author;
 
     if (canDelete) {
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-post-btn';
+        deleteButton.type = 'button';
         deleteButton.textContent = 'Удалить';
         deleteButton.addEventListener('click', () => deletePost(post.id));
 
@@ -70,12 +127,12 @@ async function loadPosts() {
     const data = await response.json();
     const posts = data.results || data;
 
-    postsDiv.textContent = '';
+    postsDiv.replaceChildren();
 
     if (!posts.length) {
-        const emptyText = document.createElement('p');
-        emptyText.textContent = 'Постов пока нет.';
-        postsDiv.appendChild(emptyText);
+        const emptyMessage = document.createElement('p');
+        emptyMessage.textContent = 'Постов пока нет.';
+        postsDiv.appendChild(emptyMessage);
         return;
     }
 

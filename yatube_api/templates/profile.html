@@ -37,7 +37,7 @@
                     <p id="profileMessage" class="message"></p>
                 </div>
 
-                <div class="account-section">
+                <div class="account-section" id="passwordSection">
                     <h2>Смена пароля</h2>
 
                     <div class="password-fields">
@@ -59,5 +59,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'js/profile.js' %}"></script>
+<script src="{% static 'js/profile.js' %}?v=avatar-fix-2"></script>
 {% endblock %}

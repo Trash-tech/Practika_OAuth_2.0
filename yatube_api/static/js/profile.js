@@ -2,6 +2,66 @@ if (!localStorage.getItem('refresh')) {
     window.location.href = '/login/';
 }
 
+function getFirstLetter(username) {
+    const value = String(username || '').trim();
+
+    if (!value) {
+        return '?';
+    }
+
+    return value[0].toUpperCase();
+}
+
+function prepareUrlForCss(url) {
+    return String(url || '').replace(/"/g, '\\"');
+}
+
+function renderAvatarBox(element, imageUrl, username) {
+    const letter = getFirstLetter(username);
+
+    element.replaceChildren();
+    element.textContent = letter;
+    element.style.backgroundImage = '';
+
+    if (!imageUrl) {
+        return;
+    }
+
+    const image = new Image();
+
+    image.addEventListener('load', () => {
+        element.textContent = '';
+        element.style.backgroundImage = `url("${prepareUrlForCss(imageUrl)}")`;
+    });
+
+    image.addEventListener('error', () => {
+        element.replaceChildren();
+        element.textContent = letter;
+        element.style.backgroundImage = '';
+    });
+
+    image.src = imageUrl;
+}
+
+function renderProfileAvatar(data) {
+    const avatar = document.getElementById('avatar');
+    renderAvatarBox(avatar, data.avatar_url, data.username);
+}
+
+function updatePasswordSection(canChangePassword) {
+    const passwordSection = document.getElementById('passwordSection');
+
+    if (!passwordSection) {
+        return;
+    }
+
+    if (canChangePassword) {
+        passwordSection.classList.remove('hidden');
+    } else {
+        passwordSection.classList.add('hidden');
+    }
+}
+
 async function loadProfile() {
     const message = document.getElementById('profileMessage');
 
@@ -19,16 +79,8 @@ async function loadProfile() {
     document.getElementById('username').value = data.username;
     document.getElementById('email').value = data.email || 'Почта не указана';
 
-    const avatar = document.getElementById('avatar');
-    avatar.style.backgroundImage = '';
-    avatar.textContent = data.username[0].toUpperCase();
-
-    if (data.avatar_url) {
-        avatar.textContent = '';
-        avatar.style.backgroundImage = `url(${data.avatar_url})`;
-        avatar.style.backgroundSize = 'cover';
-        avatar.style.backgroundPosition = 'center';
-    }
+    renderProfileAvatar(data);
+    updatePasswordSection(data.can_change_password);
 
     message.textContent = '';
 }
@@ -49,7 +101,8 @@ document.getElementById('saveProfileBtn').addEventListener('click', async () => 
 
     if (response.ok) {
         message.textContent = 'Никнейм обновлён';
-        document.getElementById('avatar').textContent = data.username[0].toUpperCase();
+        renderProfileAvatar(data);
+        updatePasswordSection(data.can_change_password);
     } else {
         message.textContent = JSON.stringify(data);
     }
@@ -113,7 +166,8 @@ document.getElementById('avatarInput').addEventListener('change', async () => {
         message.textContent = 'Аватар обновлён';
         loadProfile();
     } else {
-        message.textContent = 'Загрузка аватара пока не подключена на бэке';
+        const data = await response.json();
+        message.textContent = JSON.stringify(data);
     }
 });
 

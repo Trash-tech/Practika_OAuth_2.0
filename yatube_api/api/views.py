@@ -1,4 +1,5 @@
 import json
+import re
 import secrets
 from urllib.parse import urlencode
 
@@ -94,6 +95,12 @@ class ChangePasswordView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
+        if not request.user.has_usable_password():
+            return Response(
+                {'detail': 'Для аккаунта через Яндекс пароль не используется.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         serializer = ChangePasswordSerializer(
             data=request.data,
             context={'request': request}
@@ -144,6 +151,7 @@ class YandexLoginView(APIView):
             'redirect_uri': settings.YANDEX_REDIRECT_URI,
             'scope': settings.YANDEX_OAUTH_SCOPE,
             'state': state,
+            'force_confirm': 'yes',
         }
 
         auth_url = (
@@ -239,7 +247,7 @@ class YandexCallbackView(APIView):
     def get_or_create_user(self, yandex_data):
         yandex_id = yandex_data.get('id') or yandex_data.get('psuid')
         email = yandex_data.get('default_email')
-        login = yandex_data.get('login')
+        full_name = self.get_yandex_full_name(yandex_data)
 
         if not yandex_id:
             raise ValueError('Яндекс не вернул id пользователя.')
@@ -255,7 +263,7 @@ class YandexCallbackView(APIView):
             user = User.objects.filter(email=email).first()
 
         if not user:
-            username = self.get_unique_username(login, email, yandex_id)
+            username = self.get_unique_username(full_name, yandex_id)
             user = User.objects.create_user(
                 username=username,
                 email=email or ''
@@ -277,11 +285,22 @@ class YandexCallbackView(APIView):
 
         return user
 
-    def get_unique_username(self, login, email, yandex_id):
-        base_username = login
+    def get_yandex_full_name(self, yandex_data):
+        first_name = str(yandex_data.get('first_name') or '').strip()
+        last_name = str(yandex_data.get('last_name') or '').strip()
+        full_name = f'{first_name} {last_name}'.strip()
 
-        if not base_username and email:
-            base_username = email.split('@')[0]
+        if full_name:
+            return full_name
+
+        return str(
+            yandex_data.get('real_name')
+            or yandex_data.get('display_name')
+            or ''
+        ).strip()
+
+    def get_unique_username(self, full_name, yandex_id):
+        base_username = self.prepare_username(full_name)
 
         if not base_username:
             base_username = f'yandex_{yandex_id}'
@@ -295,6 +314,12 @@ class YandexCallbackView(APIView):
             counter += 1
 
         return username
+
+    def prepare_username(self, value):
+        value = re.sub(r'\s+', ' ', value.strip())
+        value = re.sub(r'[^\w.@+\- ]', '', value)
+        value = re.sub(r'\s+', ' ', value).strip()
+        return value
 
     def get_yandex_avatar_url(self, yandex_data):
         avatar_id = yandex_data.get('default_avatar_id')
