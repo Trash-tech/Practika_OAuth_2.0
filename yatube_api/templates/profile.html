@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="account-page">
+    <section class="account-card">
+        <div class="account-header">
+            <div>
+                <h1>Профиль</h1>
+                <p>Настройки аккаунта и личных данных</p>
+            </div>
+        </div>
+
+        <div class="account-body">
+            <aside class="account-aside">
+                <div class="avatar account-avatar" id="avatar">?</div>
+
+                <label class="account-avatar-btn">
+                    Загрузить аватар
+                    <input id="avatarInput" type="file" accept="image/*">
+                </label>
+            </aside>
+
+            <div class="account-main">
+                <div class="account-section">
+                    <h2>Основная информация</h2>
+
+                    <label>Никнейм</label>
+                    <div class="account-row">
+                        <input id="username" type="text">
+                        <button id="saveProfileBtn" class="main-btn">Сохранить</button>
+                    </div>
+
+                    <label class="email-label">Почта</label>
+                    <input id="email" type="email" disabled>
+
+                    <p id="profileMessage" class="message"></p>
+                </div>
+
+                <div class="account-section">
+                    <h2>Смена пароля</h2>
+
+                    <div class="password-fields">
+                        <input id="oldPassword" type="password" placeholder="Текущий пароль">
+                        <input id="newPassword" type="password" placeholder="Новый пароль">
+                        <input id="repeatPassword" type="password" placeholder="Повторите новый пароль">
+                    </div>
+
+                    <button id="changePasswordBtn" class="main-btn password-btn">
+                        Сменить пароль
+                    </button>
+
+                    <p id="passwordMessage" class="message"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/profile.js' %}"></script>
+{% endblock %}

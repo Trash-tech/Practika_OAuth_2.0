@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Yatube</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <a href="/" class="logo">Yatube</a>
+
+            <nav class="nav">
+                <a href="/">Главная</a>
+                <a href="/posts/create/" class="auth-link">Создать пост</a>
+                <a href="/login/" class="guest-link">Войти</a>
+                <a href="/profile/" class="auth-link">Профиль</a>
+                <a href="/register/" class="guest-link btn-small">Регистрация</a>
+                <button id="logoutBtn" class="logout-btn auth-link">Выйти</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

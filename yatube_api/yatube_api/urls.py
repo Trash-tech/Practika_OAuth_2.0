@@ -1,0 +1,18 @@
+from django.contrib import admin
+from django.urls import include, path
+from django.views.generic import TemplateView
+
+urlpatterns = [
+    path('', TemplateView.as_view(template_name='index.html'), name='index'),
+    path('login/', TemplateView.as_view(template_name='login.html'), name='login'),
+    path('register/', TemplateView.as_view(template_name='register.html'), name='register'),
+    path('profile/', TemplateView.as_view(template_name='profile.html'), name='profile'),
+    path('posts/create/', TemplateView.as_view(template_name='post_create.html'), name='post-create'),
+    path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
+    path(
+        'redoc/',
+        TemplateView.as_view(template_name='redoc.html'),
+        name='redoc'
+    ),
+]

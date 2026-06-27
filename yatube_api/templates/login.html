@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="form-card auth-card">
+    <h1>Войти</h1>
+
+    <input id="username" type="text" placeholder="Логин">
+    <input id="password" type="password" placeholder="Пароль">
+
+    <button id="loginBtn" class="main-btn full-btn">Войти</button>
+
+    <a href="/register/" class="secondary-btn">Создать аккаунт</a>
+
+    <div class="auth-divider">
+        <span></span>
+        <p>или продолжите с</p>
+        <span></span>
+    </div>
+
+    <a href="/api/v1/oauth/yandex/login/" class="oauth-btn yandex-btn">
+        <span>Я</span>
+        Войти с Яндекс ID
+    </a>
+
+    <p id="message" class="message"></p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/login.js' %}"></script>
+{% endblock %}

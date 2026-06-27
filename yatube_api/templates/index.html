@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <h1>Посты Yatube</h1>
+    </div>
+    <a href="/posts/create/" class="main-btn auth-link">Создать пост</a>
+</section>
+
+<section>
+    <div id="posts" class="posts"></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/index.js' %}"></script>
+{% endblock %}

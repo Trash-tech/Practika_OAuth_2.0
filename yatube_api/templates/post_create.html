@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="form-card">
+    <h1>Создать пост</h1>
+
+    <textarea id="postText" placeholder="Введите текст поста"></textarea>
+
+    <button id="createPostBtn" class="main-btn">Опубликовать</button>
+
+    <p id="message" class="message"></p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/post_create.js' %}"></script>
+{% endblock %}
